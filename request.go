@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"errors"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"mime/multipart"
@@ -144,6 +145,28 @@ func (r *Req) SetForm(files []map[string]string, fields []map[string]string) *Re
 	r.request.ContentLength = int64(b.Len())
 	r.request.Header.Set("Content-Type", w.FormDataContentType())
 
+	return r
+}
+
+// SetParam adds the keys and values as query parameters to the requests.
+func (r *Req) SetParam(params map[string]interface{}) *Req {
+	// TODO support structs
+	// * turn structs into maps using reflect package
+	// * and pass them to this method.
+	var counter = 1
+	var prefix = "?"
+	var result []string
+	for k, v := range params {
+		if counter > 1 {
+			prefix = "&"
+		}
+		query := fmt.Sprintf("%s%s=%v", prefix, k, v)
+		query = strings.Replace(query, " ", "+", -1)
+		result = append(result, query)
+		counter++
+	}
+	queryString := strings.Join(result, "")
+	r.address = r.address + queryString
 	return r
 }
 
