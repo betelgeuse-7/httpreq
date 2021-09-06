@@ -288,3 +288,17 @@ func TestSetTransport(t *testing.T) {
 	r.SetTransport(transportConfig)
 	require.Equal(t, transportConfig, r.client.Transport)
 }
+
+func TestSetParam(t *testing.T) {
+	r := New("https://google.com")
+	oldAddr := r.address
+	_ = r.SetParam(map[string]interface{}{
+		"name": "joe",
+		"age":  16,
+	})
+	newAddr := r.address
+
+	if oldAddr+"?name=joe&age=16" != newAddr {
+		t.Fatal("fail")
+	}
+}
